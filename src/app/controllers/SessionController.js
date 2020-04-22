@@ -5,7 +5,7 @@ const authConfig = require('../../config/auth');
 const { checkPassword } = require('../../utils/checkPassword');
 
 exports.store = async (req, res) => {
-  const { email, senha } = req.body;
+  const { email, password } = req.body;
 
   const users = await connection('users')
     .where({ email })
@@ -15,8 +15,8 @@ exports.store = async (req, res) => {
     return res.status(400).json({ error: 'Usuário não existe!' });
   }
 
-  if (!(await checkPassword(senha, users[0].senha))) {
-    return res.status(400).json({ error: 'Senha incorreta!' });
+  if (!(await checkPassword(password, users[0].password))) {
+    return res.status(400).json({ error: 'password incorreta!' });
   }
 
   const id = users[0].id_user;

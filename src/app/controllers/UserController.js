@@ -9,7 +9,7 @@ exports.store = async (req, res) => {
       .required(),
     login: Yup.string()
       .required(),
-    senha: Yup.string()
+    password: Yup.string()
       .required()
       .min(6),
   });
@@ -18,7 +18,7 @@ exports.store = async (req, res) => {
     return res.status(400).json({ error: 'Falha na validação.' });
   }
 
-  const { email, login, senha } = req.body;
+  const { email, login, password } = req.body;
 
   const users = await connection('users')
     .where({ email })
@@ -28,12 +28,17 @@ exports.store = async (req, res) => {
     return res.status(400).json({ error: 'Esse email já esta sendo usado!' });
   }
 
-  const hash = await bcrypt.hash(senha, 8);
+  const hash = await bcrypt.hash(password, 8);
 
-  const user = await connection('users')
-    .insert({ email, login, senha: hash });
+  await connection('users')
+    .insert({
+      balance: 0,
+      email,
+      login,
+      password: hash,
+    });
 
-  return res.json(user);
+  return res.json({ email, login });
 };
 
 exports.index = async (req, res) => {

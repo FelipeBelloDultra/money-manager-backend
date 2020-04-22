@@ -3,18 +3,17 @@ const connection = require('../../database/connection');
 
 exports.update = async (req, res) => {
   const schema = Yup.object().shape({
-    valor: Yup.number()
+    value: Yup.number()
       .required(),
-    descricao: Yup.string()
+    description: Yup.string()
       .required(),
   });
 
   if (!(await schema.isValid(req.body))) {
     return res.status(400).json({ error: 'Falha na validação.' });
   }
-
   const { id } = req.params;
-  const { valor, descricao } = req.body;
+  const { value, description } = req.body;
 
   const users = await connection('users')
     .where('id_user', id)
@@ -28,29 +27,37 @@ exports.update = async (req, res) => {
     return res.status(401).json({ error: 'Acesso negado.' });
   }
 
-  const deposito = await users[0].saldo + valor;
+  const deposit = await users[0].balance + value;
 
-  const saque = deposito - valor;
+  const withdraw = deposit - value;
 
-  let tipo;
+  let type;
 
-  if (deposito >= saque) {
-    tipo = 'deposito';
+  if (deposit >= withdraw) {
+    type = 'deposit';
   } else {
-    tipo = 'saque';
+    type = 'withdraw';
   }
 
   await connection('historics')
     .insert({
-      descricao,
-      tipo,
-      data: new Date().toISOString(),
+      description,
+      type,
+      old_value: users[0].balance,
+      additional_value: value,
+      amount: deposit,
+      date: new Date().toISOString(),
       user_id: req.userId,
     });
 
-  const user = await connection('users')
+  await connection('users')
     .where('id_user', id)
-    .update({ saldo: deposito });
+    .update({ balance: deposit });
 
-  return res.json(user);
+  return res.json({
+    login: users[0].login,
+    old_value: users[0].balance,
+    additional_value: value,
+    amount: deposit,
+  });
 };

@@ -1,3 +1,3 @@
 const bcrypt = require('bcryptjs');
 
-exports.checkPassword = (senha, senhaHash) => bcrypt.compare(senha, senhaHash);
+exports.checkPassword = (password, passwordHash) => bcrypt.compare(password, passwordHash);
