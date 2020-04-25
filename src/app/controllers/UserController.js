@@ -47,3 +47,14 @@ exports.index = async (req, res) => {
 
   return res.json(users);
 };
+
+exports.show = async (req, res) => {
+  const id = req.userId;
+
+  const user = await connection('users')
+    .select('*')
+    .where('id_user', id)
+    .first();
+
+  return res.json(user);
+};

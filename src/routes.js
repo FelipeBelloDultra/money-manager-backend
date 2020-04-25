@@ -18,6 +18,9 @@ routes.post('/session', SessionController.store);
 
 routes.use(authHeader);
 
+// User Controller
+routes.get('/user', UserController.show);
+
 // Balance Controller
 routes.put('/balance/:id', BalanceController.update);
 

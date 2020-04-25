@@ -12,11 +12,11 @@ exports.store = async (req, res) => {
     .select('*');
 
   if (users.length === 0) {
-    return res.status(400).json({ error: 'Usuário não existe!' });
+    return res.status(400).json({ error: 'Esse usuário não existe!' });
   }
 
   if (!(await checkPassword(password, users[0].password))) {
-    return res.status(400).json({ error: 'password incorreta!' });
+    return res.status(400).json({ error: 'Senha incorreta!' });
   }
 
   const id = users[0].id_user;
