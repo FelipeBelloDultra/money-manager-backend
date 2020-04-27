@@ -13,7 +13,7 @@ exports.update = async (req, res) => {
     return res.status(400).json({ error: 'Falha na validação.' });
   }
   const { id } = req.params;
-  const { value, description } = req.body;
+  const { value, description, type } = req.body;
 
   const users = await connection('users')
     .where('id_user', id)
@@ -27,17 +27,9 @@ exports.update = async (req, res) => {
     return res.status(401).json({ error: 'Acesso negado.' });
   }
 
-  const deposit = await users[0].balance + value;
-
-  const withdraw = deposit - value;
-
-  let type;
-
-  if (deposit >= withdraw) {
-    type = 'deposit';
-  } else {
-    type = 'withdraw';
-  }
+  const deposit = (type === 'deposit')
+    ? parseFloat(users[0].balance) + parseFloat(value)
+    : parseFloat(users[0].balance) - parseFloat(value);
 
   await connection('historics')
     .insert({
@@ -56,8 +48,9 @@ exports.update = async (req, res) => {
 
   return res.json({
     login: users[0].login,
+    type,
     old_value: users[0].balance,
-    additional_value: value,
+    additional_value: parseFloat(value),
     amount: deposit,
   });
 };
